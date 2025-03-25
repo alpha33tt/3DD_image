@@ -3,41 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto-Rotating Fan Card</title>
+    <title>3D Auto-Rotating Fan Card</title>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.80/build/spline-viewer.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        spline-viewer { width: 80vw; height: 80vh; }
+        body { margin: 0; overflow: hidden; }
+        .spline-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
 
-    <spline-viewer id="spline" url="https://prod.spline.design/09U2WyBC-T2P5AZq/scene.splinecode"></spline-viewer>
+    <div class="spline-container">
+        <spline-viewer id="spline" url="https://prod.spline.design/09U2WyBC-T2P5AZq/scene.splinecode"></spline-viewer>
+    </div>
 
     <script>
-        // Wait for Spline to load
-        const splineViewer = document.getElementById('spline');
+        document.addEventListener("DOMContentLoaded", () => {
+            const viewer = document.getElementById("spline");
 
-        splineViewer.addEventListener('load', () => {
-            console.log("Spline model loaded!");
+            viewer.addEventListener("load", () => {
+                console.log("Spline scene loaded!");
+                viewer.setAttribute("autoplay", "true");
 
-            // WebSocket connection to Python server
-            const socket = new WebSocket("ws://localhost:8765");
-
-            socket.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                
-                // Rotate the Fan Card by updating Spline object
-                splineViewer.setAttribute('rotation', `0 ${data.rotationY} 0`);
-            };
-
-            socket.onopen = function() {
-                console.log("Connected to WebSocket server");
-            };
-
-            socket.onerror = function(error) {
-                console.error("WebSocket error:", error);
-            };
+                // Use setInterval to keep rotating the model
+                let angle = 0;
+                setInterval(() => {
+                    angle += 1; // Adjust rotation speed
+                    viewer.style.transform = `rotateY(${angle}deg)`;
+                }, 50); // Adjust the speed here
+            });
         });
     </script>
 
